@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import prisma from '@config/client';
-import upload from '@middleware/multer';
-import { uploadFile } from '@service/upload';
-import deleteFile from '@/service/delete';
-import { getData } from '@/service/auth';
+import prisma from '../config/client';
+import upload from '../middleware/multer';
+import { uploadFile } from '../service/upload';
+import deleteFile from '../service/delete';
+import { getData } from '../service/auth';
 
 export const addRoom = [
     upload.array('images', 5),
