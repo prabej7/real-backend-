@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id               String       @id @default(uuid())
+  username         String       @unique
+  password         String
+  email            String       @unique
+  role             String?
+  phone            Int?
+  lat              Float?
+  lon              Float?
+  fullName         String?
+  address          String?
+  avatar           String?
+  verified         Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  sentMessages     MessageBox[] @relation("senderMessages")
+  receivedMessages MessageBox[] @relation("receiverMessages")
+  MessageBox       MessageBox[]
+  Rooms            Rooms[]
+  Lands            Lands[]
+  Hostels          Hostels[]
+  DeleteReq        DeleteReq[]
+}
+
+model Rooms {
+  id              String      @id @default(uuid())
+  noOfRooms       Int
+  flat            Boolean
+  waterfacility   Boolean
+  maxPeople       Int
+  payment         String
+  furnished       Boolean
+  securityDeposit Int
+  noticePeriod    String
+  balcony         Boolean
+  waterTank       Boolean
+  wifi            Boolean
+  restrictions    String
+  user            Users       @relation(fields: [usersId], references: [id])
+  info            Infos       @relation(fields: [infosId], references: [id])
+  infosId         String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  usersId         String
+  DeleteReq       DeleteReq[]
+}
+
+model Lands {
+  id        String      @id @default(uuid())
+  size      String
+  parking   Boolean
+  waterTank Boolean
+  balcony   Boolean
+  furnished Boolean
+  roadSize  String
+  user      Users       @relation(fields: [usersId], references: [id])
+  info      Infos       @relation(fields: [infosId], references: [id])
+  infosId   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  usersId   String
+  DeleteReq DeleteReq[]
+}
+
+model Hostels {
+  id           String      @id @default(uuid())
+  name         String      @unique
+  food         Boolean
+  washroom     Boolean
+  cctv         Boolean
+  parking      Boolean
+  wifi         Boolean
+  laundry      Boolean
+  geyser       Boolean
+  fan          Boolean
+  studyTable   Boolean
+  locker       Boolean
+  cupboard     Boolean
+  doctorOnCall Boolean
+  matress      Boolean
+  prePayment   Boolean
+  postPayment  Boolean
+  user         Users       @relation(fields: [usersId], references: [id])
+  info         Infos       @relation(fields: [infosId], references: [id])
+  infosId      String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  usersId      String
+  DeleteReq    DeleteReq[]
+}
+
+model Infos {
+  id      String    @id @default(uuid())
+  lat     String
+  lon     String
+  address String
+  city    String
+  imgs    String[]
+  price   Float
+  Hostels Hostels[]
+  Lands   Lands[]
+  Rooms   Rooms[]
+}
+
+model DeleteReq {
+  id       String   @id @default(uuid())
+  user     Users    @relation(fields: [usersId], references: [id])
+  usersId  String
+  roomId   String?
+  hostelId String?
+  landId   String?
+  room     Rooms?   @relation(fields: [roomId], references: [id])
+  hostel   Hostels? @relation(fields: [hostelId], references: [id])
+  land     Lands?   @relation(fields: [landId], references: [id])
+}
+
+model MessageBox {
+  id         String   @id @default(uuid())
+  sender     Users    @relation("senderMessages", fields: [senderId], references: [id])
+  senderId   String
+  receiver   Users    @relation("receiverMessages", fields: [receiverId], references: [id])
+  receiverId String
+  message    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Users      Users?   @relation(fields: [usersId], references: [id])
+  usersId    String?
+}
