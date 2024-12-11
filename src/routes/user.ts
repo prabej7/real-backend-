@@ -5,9 +5,9 @@ import { registerSchema } from "../validations/valudations";
 
 const router = Router();
 
-router.route("/api/register").post(validateData(registerSchema), register);
-router.route("/api/login").post(validateData(registerSchema), login);
-router.route("/api/user/:token").get(getUser);
-router.route("/api/users/").get(getAllUser);
+router.route("/register").post(validateData(registerSchema), register);
+router.route("/login").post(validateData(registerSchema), login);
+router.route("/user/:token").get(getUser);
+router.route("/users/").get(getAllUser);
 
 export default router;

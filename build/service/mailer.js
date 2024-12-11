@@ -24,7 +24,7 @@ const transporter = nodemailer_1.default.createTransport({
 });
 const sendMail = (email, otp) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const info = yield transporter.sendMail({
+        yield transporter.sendMail({
             from: process.env.EMAIL,
             to: email,
             subject: "Test",

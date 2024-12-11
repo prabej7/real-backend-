@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { uploadFile } from "../service/upload";
 import prisma from "../config/client";
 import upload from "../middleware/multer";
-import deleteFile from "@/service/delete";
-import { getData } from "@/service/auth";
+import deleteFile from "../service/delete";
+import { getData } from "../service/auth";
 
 export const addHostel = [upload.array("images", 5), async (req: Request, res: Response) => {
     try {

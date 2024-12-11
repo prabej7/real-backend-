@@ -1,4 +1,4 @@
-import cloudinary from "@config/cloud";
+import cloudinary from "../config/cloud";
 
 const extractPublicId = (url: string): string => {
     const parts = url.split("/");

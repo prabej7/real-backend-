@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const user_1 = __importDefault(require("./user"));
+const rooms_1 = __importDefault(require("./rooms"));
+const express_1 = require("express");
+const otp_1 = __importDefault(require("./otp"));
+const hostel_1 = __importDefault(require("./hostel"));
+const land_1 = __importDefault(require("./land"));
+const stats_1 = __importDefault(require("./stats"));
+const router = (0, express_1.Router)();
+router.use(user_1.default);
+router.use(rooms_1.default);
+router.use(hostel_1.default);
+router.use(land_1.default);
+router.use(otp_1.default);
+router.use(stats_1.default);
+exports.default = router;

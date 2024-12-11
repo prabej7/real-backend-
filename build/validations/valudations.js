@@ -28,7 +28,6 @@ exports.roomSchema = zod_1.z.object({
     lon: zod_1.z.number()
 });
 exports.hostelSchema = zod_1.z.object({
-    id: zod_1.z.string(),
     food: zod_1.z.boolean(),
     washroom: zod_1.z.boolean(),
     cctv: zod_1.z.boolean(),
@@ -44,7 +43,6 @@ exports.hostelSchema = zod_1.z.object({
     matress: zod_1.z.boolean(),
     prePayment: zod_1.z.boolean(),
     postPayment: zod_1.z.boolean(),
-    img: zod_1.z.array(zod_1.z.string()),
     address: zod_1.z.string(),
     lat: zod_1.z.number(),
     lon: zod_1.z.number()

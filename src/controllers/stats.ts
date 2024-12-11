@@ -1,4 +1,4 @@
-import prisma from "@/config/client";
+import prisma from "../config/client";
 import { Request, Response } from "express";
 
 export const getCounts = async (req: Request, res: Response) => {

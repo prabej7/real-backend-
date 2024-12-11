@@ -8,4 +8,5 @@ const router = (0, express_1.Router)();
 router.route("/register").post((0, zod_middleware_1.validateData)(valudations_1.registerSchema), user_1.register);
 router.route("/login").post((0, zod_middleware_1.validateData)(valudations_1.registerSchema), user_1.login);
 router.route("/user/:token").get(user_1.getUser);
+router.route("/users/").get(user_1.getAllUser);
 exports.default = router;

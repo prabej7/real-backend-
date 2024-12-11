@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.client = void 0;
 const redis_1 = require("redis");
+console.log(process.env.REDIS_PASS);
 const client = (0, redis_1.createClient)({
     password: process.env.REDIS_PASS,
     socket: {

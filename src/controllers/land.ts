@@ -1,8 +1,8 @@
-import prisma from "@/config/client";
-import upload from "@/middleware/multer";
-import { getData } from "@/service/auth";
-import deleteFile from "@/service/delete";
-import { uploadFile } from "@/service/upload";
+import prisma from "../config/client";
+import upload from "../middleware/multer";
+import { getData } from "../service/auth";
+import deleteFile from "../service/delete";
+import { uploadFile } from "../service/upload";
 import { Request, Response } from "express";
 
 export const addLand = [upload.array("images", 5), async (req: Request, res: Response) => {

@@ -1,12 +1,12 @@
-import { addHostel, deleteHostel, getAll, getHostel, getHostels } from "@/controllers/hostel";
+import { addHostel, deleteHostel, getAll, getHostel, getHostels } from "../controllers/hostel";
 import { Router } from "express";
 
 const hostelRouter = Router();
 
 hostelRouter.post("/hostel", addHostel)
-    .get("/api/hostel/:id", getHostel)
-    .get("/api/hostels", getHostels)
-    .get("/api/all-hostels", getAll);
+    .get("/hostel/:id", getHostel)
+    .get("/hostels", getHostels)
+    .get("/all-hostels", getAll);
 
 hostelRouter.delete("/delete-hostel/:id", deleteHostel)
 export default hostelRouter;
