@@ -13,11 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAll = exports.getRooms = exports.deleteRoom = exports.getRoom = exports.addRoom = void 0;
-const client_1 = __importDefault(require("@config/client"));
-const multer_1 = __importDefault(require("@middleware/multer"));
-const upload_1 = require("@service/upload");
-const delete_1 = __importDefault(require("@/service/delete"));
-const auth_1 = require("@/service/auth");
+const client_1 = __importDefault(require("../config/client"));
+const multer_1 = __importDefault(require("../middleware/multer"));
+const upload_1 = require("../service/upload");
+const delete_1 = __importDefault(require("../service/delete"));
+const auth_1 = require("../service/auth");
 exports.addRoom = [
     multer_1.default.array('images', 5),
     (req, res) => __awaiter(void 0, void 0, void 0, function* () {
