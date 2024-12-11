@@ -4,9 +4,9 @@ import { Router } from "express";
 const hostelRouter = Router();
 
 hostelRouter.post("/hostel", addHostel)
-    .get("/hostel/:id", getHostel)
-    .get("/hostels", getHostels)
-    .get("/all-hostels", getAll);
+    .get("/api/hostel/:id", getHostel)
+    .get("/api/hostels", getHostels)
+    .get("/api/all-hostels", getAll);
 
 hostelRouter.delete("/delete-hostel/:id", deleteHostel)
 export default hostelRouter;

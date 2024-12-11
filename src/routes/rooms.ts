@@ -4,9 +4,9 @@ import { addRoom, deleteRoom, getAll, getRoom, getRooms } from "@/controllers/ro
 const roomRouter = Router()
 
 roomRouter.post("/room", addRoom)
-    .get("/room/:id", getRoom)
-    .delete("/room/:id", deleteRoom)
-    .get("/rooms", getRooms)
-    .get("/all-rooms", getAll);
+    .get("/api/room/:id", getRoom)
+    .delete("/api/room/:id", deleteRoom)
+    .get("/api/rooms", getRooms)
+    .get("/api/all-rooms", getAll);
 
 export default roomRouter;
