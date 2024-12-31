@@ -206,6 +206,7 @@ export const filter = async (req: Request, res: Response) => {
                 waterfacility: Boolean(waterfacility),
                 wifi: Boolean(wifi),
                 noOfRooms: Number(noOfRooms),
+                balcony: Boolean(balcony),
                 info: {
                     price: {
                         gte: Number(min),

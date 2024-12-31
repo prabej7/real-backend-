@@ -15,6 +15,7 @@ roomRouter.post("/room", addRoom)
     .delete("/room/:id", deleteRoom)
     .get("/rooms", getRooms)
     .get("/all-rooms", getAll)
-    .post("/filter-room", filter);
+
+roomRouter.post("/filter-room", filter);
 
 export default roomRouter;
