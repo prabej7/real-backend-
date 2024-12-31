@@ -177,3 +177,43 @@ export const getAll = async (req: Request, res: Response) => {
         res.status(500).json({ error: "Internal Server Error." });
     }
 }
+
+export const filter = async (req: Request, res: Response) => {
+    try {
+        const { balcony,
+            flat,
+            furnished,
+            waterfacility,
+            wifi,
+            max,
+            min,
+            noOfRooms
+        } = req.body as {
+            flat: boolean;
+            waterfacility: boolean;
+            furnished: boolean;
+            balcony: boolean;
+            wifi: boolean;
+            min: number;
+            max: number;
+            noOfRooms: number
+        };
+
+        const rooms = await prisma.rooms.findMany({
+            where: {
+                flat, furnished, waterfacility, wifi, noOfRooms, balcony,
+                info: {
+                    price: {
+                        gte: min,
+                        lte: max
+                    }
+                }
+            },
+            include: { info: true }
+        });
+
+        res.status(200).json({ message: "Success", rooms });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error." });
+    }
+}
