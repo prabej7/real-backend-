@@ -168,3 +168,74 @@ export const getAll = async (req: Request, res: Response) => {
         res.status(500).json({ error: "Internal Server Error." });
     }
 }
+
+export const filter = async (req: Request, res: Response) => {
+    try {
+
+        type FormField = {
+            food: boolean;
+            washroom: boolean;
+            cctv: boolean;
+            parking: boolean;
+            wifi: boolean;
+            laundry: boolean;
+            geyser: boolean;
+            fan: boolean;
+            studyTable: boolean;
+            locker: boolean;
+            cupboard: boolean;
+            doctorOnCall: boolean;
+            matress: boolean;
+            min: number;
+            max: number;
+        }
+
+        const {
+            cctv,
+            cupboard,
+            doctorOnCall,
+            fan,
+            food,
+            geyser,
+            laundry,
+            locker,
+            matress,
+            max,
+            min,
+            parking,
+            studyTable,
+            washroom,
+            wifi
+        } = req.body as FormField;
+
+
+        const hostels = await prisma.hostels.findMany({
+            where: {
+                food,
+                washroom,
+                cctv, cupboard,
+                doctorOnCall, fan,
+                geyser,
+                laundry,
+                locker,
+                matress,
+                parking,
+                studyTable,
+                wifi,
+                info: {
+                    price: {
+                        gte: min,
+                        lte: max
+                    }
+                }
+            },
+            include: { info: true }
+        });
+
+        res.status(200).json({ message: "Success", hostels });
+
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+
+}

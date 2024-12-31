@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAll = exports.getLands = exports.deleteLand = exports.getLand = exports.addLand = void 0;
+exports.filter = exports.getAll = exports.getLands = exports.deleteLand = exports.getLand = exports.addLand = void 0;
 const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
 const auth_1 = require("../service/auth");
@@ -139,3 +139,26 @@ const getAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getAll = getAll;
+const filter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { size, parking, waterTank, balcony, furnished, roadSize, min, max } = req.body;
+        const where = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, (size ? { size: size } : {})), (parking ? { parking: parking } : {})), (waterTank ? { waterTank: waterTank } : {})), (balcony ? { balcony: balcony } : {})), (furnished ? { furnished: furnished } : {})), (roadSize ? { roadSize: roadSize } : {})), { info: {
+                price: {
+                    gte: min,
+                    lte: max
+                }
+            } });
+        const lands = yield client_1.default.lands.findMany({
+            where,
+            include: {
+                info: true
+            }
+        });
+        res.status(200).json({ message: "Success", lands });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Internal Server Error." });
+    }
+});
+exports.filter = filter;

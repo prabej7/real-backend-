@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAll = exports.getHostels = exports.deleteHostel = exports.getHostel = exports.addHostel = void 0;
+exports.filter = exports.getAll = exports.getHostels = exports.deleteHostel = exports.getHostel = exports.addHostel = void 0;
 const upload_1 = require("../service/upload");
 const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
@@ -149,3 +149,35 @@ const getAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getAll = getAll;
+const filter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { cctv, cupboard, doctorOnCall, fan, food, geyser, laundry, locker, matress, max, min, parking, studyTable, washroom, wifi } = req.body;
+        const hostels = yield client_1.default.hostels.findMany({
+            where: {
+                food,
+                washroom,
+                cctv, cupboard,
+                doctorOnCall, fan,
+                geyser,
+                laundry,
+                locker,
+                matress,
+                parking,
+                studyTable,
+                wifi,
+                info: {
+                    price: {
+                        gte: min,
+                        lte: max
+                    }
+                }
+            },
+            include: { info: true }
+        });
+        res.status(200).json({ message: "Success", hostels });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+});
+exports.filter = filter;
