@@ -201,11 +201,15 @@ export const filter = async (req: Request, res: Response) => {
 
         const rooms = await prisma.rooms.findMany({
             where: {
-                flat, furnished, waterfacility, wifi, noOfRooms, balcony,
+                flat: Boolean(flat),
+                furnished: Boolean(furnished),
+                waterfacility: Boolean(waterfacility),
+                wifi: Boolean(wifi),
+                noOfRooms: Number(noOfRooms),
                 info: {
                     price: {
-                        gte: min,
-                        lte: max
+                        gte: Number(min),
+                        lte: Number(max)
                     }
                 }
             },
@@ -214,6 +218,7 @@ export const filter = async (req: Request, res: Response) => {
 
         res.status(200).json({ message: "Success", rooms });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: "Internal Server Error." });
     }
 }
