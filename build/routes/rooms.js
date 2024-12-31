@@ -8,4 +8,5 @@ roomRouter.post("/room", room_1.addRoom)
     .delete("/room/:id", room_1.deleteRoom)
     .get("/rooms", room_1.getRooms)
     .get("/all-rooms", room_1.getAll);
+roomRouter.post("/filter-room", room_1.filter);
 exports.default = roomRouter;

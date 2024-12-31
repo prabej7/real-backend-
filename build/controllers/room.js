@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAll = exports.getRooms = exports.deleteRoom = exports.getRoom = exports.addRoom = void 0;
+exports.filter = exports.getAll = exports.getRooms = exports.deleteRoom = exports.getRoom = exports.addRoom = void 0;
 const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
 const upload_1 = require("../service/upload");
@@ -156,3 +156,31 @@ const getAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getAll = getAll;
+const filter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { balcony, flat, furnished, waterfacility, wifi, max, min, noOfRooms } = req.body;
+        const rooms = yield client_1.default.rooms.findMany({
+            where: {
+                flat: Boolean(flat),
+                furnished: Boolean(furnished),
+                waterfacility: Boolean(waterfacility),
+                wifi: Boolean(wifi),
+                noOfRooms: Number(noOfRooms),
+                balcony: Boolean(balcony),
+                info: {
+                    price: {
+                        gte: Number(min),
+                        lte: Number(max)
+                    }
+                }
+            },
+            include: { info: true }
+        });
+        res.status(200).json({ message: "Success", rooms });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Internal Server Error." });
+    }
+});
+exports.filter = filter;
