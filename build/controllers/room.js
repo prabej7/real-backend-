@@ -18,19 +18,12 @@ const multer_1 = __importDefault(require("../middleware/multer"));
 const upload_1 = require("../service/upload");
 const delete_1 = __importDefault(require("../service/delete"));
 const auth_1 = require("../service/auth");
+const asyncHandler_1 = __importDefault(require("src/middleware/asyncHandler"));
 exports.addRoom = [
     multer_1.default.array('images', 5),
     (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { noOfRooms, maxPeople, paymentMode, noticePeriod, restrictions, securityDeposit, balcony, flat, furnished, waterFacility, waterTank, wifi, address, lat, lon, price, city, token, } = JSON.parse(req.body.form);
-            // Get user data from token
-            const { id } = (0, auth_1.getData)(token);
-            // Validate user
-            const user = yield client_1.default.users.findUnique({ where: { id } });
-            if (!user) {
-                res.status(404).json({ error: 'User not found.' });
-                return;
-            }
             // Handle file uploads
             const imageUrls = req.files
                 ? yield Promise.all(req.files.map((file) => (0, upload_1.uploadFile)(file)))
@@ -51,7 +44,7 @@ exports.addRoom = [
                     waterTank,
                     wifi,
                     user: {
-                        connect: { id: user.id }, // Correct user connection
+                        connect: { id: req.user.id },
                     },
                     info: {
                         create: {
@@ -73,24 +66,24 @@ exports.addRoom = [
         }
     }),
 ];
-const getRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getRoom = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
-        try {
-            const room = yield client_1.default.rooms.findUnique({ where: { id } });
-            res.status(200).json({ message: "Success", room });
-        }
-        catch (error) {
+        const updatedRoom = yield client_1.default.rooms.update({
+            where: { id },
+            data: { score: { increment: 1 } }
+        });
+        res.status(200).json({ message: "Success", room: updatedRoom });
+    }
+    catch (err) {
+        if (err.code == "P2025") {
             res.status(404).json({ error: "Room not found!" });
             return;
         }
-    }
-    catch (err) {
         res.status(500).json({ error: "Internal Server Error." });
     }
-});
-exports.getRoom = getRoom;
-const deleteRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+exports.deleteRoom = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
         try {
@@ -110,43 +103,35 @@ const deleteRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     catch (error) {
         res.status(500).json({ error: "Internal Server Error." });
     }
-});
-exports.deleteRoom = deleteRoom;
-const getRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const pageSize = 10;
-        const token = req.query.token;
-        const { id } = (0, auth_1.getData)(token);
-        const skip = (page - 1) * pageSize;
-        const rooms = yield client_1.default.rooms.findMany({
-            skip,
-            take: pageSize,
-            where: {
-                usersId: id
-            },
-            orderBy: {
-                createdAt: 'desc'
-            },
-            include: {
-                info: true
-            }
-        });
-        const totalCount = yield client_1.default.rooms.count();
-        res.status(200).json({
-            data: rooms,
-            totalCount,
-            currentPage: page,
-            totalPages: Math.ceil(totalCount / pageSize),
-        });
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error." });
-    }
-});
-exports.getRooms = getRooms;
-const getAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+exports.getRooms = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 10;
+    const token = req.query.token;
+    const { id } = (0, auth_1.getData)(token);
+    const skip = (page - 1) * pageSize;
+    const rooms = yield client_1.default.rooms.findMany({
+        skip,
+        take: pageSize,
+        where: {
+            usersId: id
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
+        include: {
+            info: true
+        }
+    });
+    const totalCount = yield client_1.default.rooms.count();
+    res.status(200).json({
+        data: rooms,
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / pageSize),
+    });
+}));
+exports.getAll = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const rooms = yield client_1.default.rooms.findMany({ include: { info: true } });
         res.status(200).json({ rooms });
@@ -154,33 +139,25 @@ const getAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         res.status(500).json({ error: "Internal Server Error." });
     }
-});
-exports.getAll = getAll;
-const filter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { balcony, flat, furnished, waterfacility, wifi, max, min, noOfRooms } = req.body;
-        const rooms = yield client_1.default.rooms.findMany({
-            where: {
-                flat: Boolean(flat),
-                furnished: Boolean(furnished),
-                waterfacility: Boolean(waterfacility),
-                wifi: Boolean(wifi),
-                noOfRooms: Number(noOfRooms),
-                balcony: Boolean(balcony),
-                info: {
-                    price: {
-                        gte: Number(min),
-                        lte: Number(max)
-                    }
+}));
+exports.filter = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { balcony, flat, furnished, waterfacility, wifi, max, min, noOfRooms } = req.body;
+    const rooms = yield client_1.default.rooms.findMany({
+        where: {
+            flat: Boolean(flat),
+            furnished: Boolean(furnished),
+            waterfacility: Boolean(waterfacility),
+            wifi: Boolean(wifi),
+            noOfRooms: Number(noOfRooms),
+            balcony: Boolean(balcony),
+            info: {
+                price: {
+                    gte: Number(min),
+                    lte: Number(max)
                 }
-            },
-            include: { info: true }
-        });
-        res.status(200).json({ message: "Success", rooms });
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-});
-exports.filter = filter;
+            }
+        },
+        include: { info: true }
+    });
+    res.status(200).json({ message: "Success", rooms });
+}));

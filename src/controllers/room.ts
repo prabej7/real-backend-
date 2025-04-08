@@ -4,6 +4,7 @@ import upload from '../middleware/multer';
 import { uploadFile } from '../service/upload';
 import deleteFile from '../service/delete';
 import { getData } from '../service/auth';
+import asyncHandler from 'src/middleware/asyncHandler';
 
 export const addRoom = [
     upload.array('images', 5),
@@ -31,15 +32,7 @@ export const addRoom = [
                 token,
             } = JSON.parse(req.body.form);
 
-            // Get user data from token
-            const { id } = getData(token) as { email: string; id: string };
-
-            // Validate user
-            const user = await prisma.users.findUnique({ where: { id } });
-            if (!user) {
-                res.status(404).json({ error: 'User not found.' });
-                return;
-            }
+            
 
             // Handle file uploads
             const imageUrls = req.files
@@ -64,7 +57,7 @@ export const addRoom = [
                     waterTank,
                     wifi,
                     user: {
-                        connect: { id: user.id }, // Correct user connection
+                        connect: { id: req.user.id }, 
                     },
                     info: {
                         create: {
@@ -88,24 +81,25 @@ export const addRoom = [
 ];
 
 
-export const getRoom = async (req: Request, res: Response) => {
+export const getRoom = asyncHandler(async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-
-        try {
-            const room = await prisma.rooms.findUnique({ where: { id } });
-            res.status(200).json({ message: "Success", room });
-        } catch (error) {
+        const updatedRoom = await prisma.rooms.update({
+            where: { id },
+            data: { score: { increment: 1 } }
+        })
+        res.status(200).json({ message: "Success", room: updatedRoom });
+    }
+    catch (err: any) {
+        if (err.code == "P2025") {
             res.status(404).json({ error: "Room not found!" });
             return;
         }
-
-    } catch (err) {
         res.status(500).json({ error: "Internal Server Error." })
     }
-}
+})
 
-export const deleteRoom = async (req: Request, res: Response) => {
+export const deleteRoom = asyncHandler(async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
         try {
@@ -129,97 +123,92 @@ export const deleteRoom = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error." });
     }
-}
+})
 
-export const getRooms = async (req: Request, res: Response) => {
-    try {
-        const page = parseInt(req.query.page as string) || 1;
-        const pageSize = 10;
-        const token = req.query.token as string;
-        const { id } = getData(token) as { id: string };
-        const skip = (page - 1) * pageSize;
+export const getRooms = asyncHandler(async (req: Request, res: Response) => {
 
-
-        const rooms = await prisma.rooms.findMany({
-            skip,
-            take: pageSize,
-            where: {
-                usersId: id
-            },
-            orderBy: {
-                createdAt: 'desc'
-            },
-            include: {
-                info: true
-            }
-        });
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = 10;
+    const token = req.query.token as string;
+    const { id } = getData(token) as { id: string };
+    const skip = (page - 1) * pageSize;
 
 
-        const totalCount = await prisma.rooms.count();
+    const rooms = await prisma.rooms.findMany({
+        skip,
+        take: pageSize,
+        where: {
+            usersId: id
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
+        include: {
+            info: true
+        }
+    });
 
-        res.status(200).json({
-            data: rooms,
-            totalCount,
-            currentPage: page,
-            totalPages: Math.ceil(totalCount / pageSize),
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error." });
-    }
-};
 
-export const getAll = async (req: Request, res: Response) => {
+    const totalCount = await prisma.rooms.count();
+
+    res.status(200).json({
+        data: rooms,
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / pageSize),
+    });
+
+});
+
+export const getAll = asyncHandler(async (req: Request, res: Response) => {
     try {
         const rooms = await prisma.rooms.findMany({ include: { info: true } });
         res.status(200).json({ rooms });
     } catch (error) {
         res.status(500).json({ error: "Internal Server Error." });
     }
-}
+});
 
-export const filter = async (req: Request, res: Response) => {
-    try {
-        const { balcony,
-            flat,
-            furnished,
-            waterfacility,
-            wifi,
-            max,
-            min,
-            noOfRooms
-        } = req.body as {
-            flat: boolean;
-            waterfacility: boolean;
-            furnished: boolean;
-            balcony: boolean;
-            wifi: boolean;
-            min: number;
-            max: number;
-            noOfRooms: number
-        };
+export const filter = asyncHandler(async (req: Request, res: Response) => {
 
-        const rooms = await prisma.rooms.findMany({
-            where: {
-                flat: Boolean(flat),
-                furnished: Boolean(furnished),
-                waterfacility: Boolean(waterfacility),
-                wifi: Boolean(wifi),
-                noOfRooms: Number(noOfRooms),
-                balcony: Boolean(balcony),
-                info: {
-                    price: {
-                        gte: Number(min),
-                        lte: Number(max)
-                    }
+    const { balcony,
+        flat,
+        furnished,
+        waterfacility,
+        wifi,
+        max,
+        min,
+        noOfRooms
+    } = req.body as {
+        flat: boolean;
+        waterfacility: boolean;
+        furnished: boolean;
+        balcony: boolean;
+        wifi: boolean;
+        min: number;
+        max: number;
+        noOfRooms: number
+    };
+
+    const rooms = await prisma.rooms.findMany({
+        where: {
+            flat: Boolean(flat),
+            furnished: Boolean(furnished),
+            waterfacility: Boolean(waterfacility),
+            wifi: Boolean(wifi),
+            noOfRooms: Number(noOfRooms),
+            balcony: Boolean(balcony),
+            info: {
+                price: {
+                    gte: Number(min),
+                    lte: Number(max)
                 }
-            },
-            include: { info: true }
-        });
+            }
+        },
+        include: { info: true }
+    });
 
-        res.status(200).json({ message: "Success", rooms });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-}
+    res.status(200).json({ message: "Success", rooms });
+
+
+});

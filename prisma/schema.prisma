@@ -58,6 +58,7 @@ model Rooms {
   updatedAt       DateTime    @updatedAt
   usersId         String
   DeleteReq       DeleteReq[]
+  score           Int         @default(0)
 }
 
 model Lands {
@@ -75,6 +76,7 @@ model Lands {
   updatedAt DateTime    @updatedAt
   usersId   String
   DeleteReq DeleteReq[]
+  score     Int         @default(0)
 }
 
 model Hostels {
@@ -102,6 +104,7 @@ model Hostels {
   updatedAt    DateTime    @updatedAt
   usersId      String
   DeleteReq    DeleteReq[]
+  score        Int         @default(0)
 }
 
 model Infos {

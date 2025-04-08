@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const auth_1 = require("src/middleware/auth");
 const land_1 = require("../controllers/land");
 const express_1 = require("express");
 const landRouter = (0, express_1.Router)();
-landRouter.post("/land", land_1.addLand)
-    .get("/land/:id", land_1.getLand)
-    .delete("/land/:id", land_1.deleteLand)
-    .get("/lands", land_1.getLands)
-    .get("/all-lands", land_1.getAll)
-    .post("/filter-land", land_1.filter);
+landRouter.post("/land", auth_1.auth, land_1.addLand)
+    .get("/land/:id", auth_1.auth, land_1.getLand)
+    .delete("/land/:id", auth_1.auth, land_1.deleteLand)
+    .get("/lands", auth_1.auth, land_1.getLands)
+    .get("/all-lands", auth_1.auth, land_1.getAll)
+    .post("/filter-land", auth_1.auth, land_1.filter);
 exports.default = landRouter;

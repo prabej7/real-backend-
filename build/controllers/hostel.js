@@ -18,14 +18,10 @@ const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
 const delete_1 = __importDefault(require("../service/delete"));
 const auth_1 = require("../service/auth");
+const asyncHandler_1 = __importDefault(require("src/middleware/asyncHandler"));
 exports.addHostel = [multer_1.default.array("images", 5), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const { name, food, washroom, cctv, parking, wifi, laundry, geyser, fan, studyTable, locker, cupboard, doctorOnCall, matress, prePayment, postPayment, lat, lon, address, city, price, token } = JSON.parse(req.body.form);
-            const { id } = (0, auth_1.getData)(token);
-            const user = yield client_1.default.users.findUnique({ where: { id } });
-            if (!user) {
-                res.status(404).json({ error: "User not found!" });
-            }
+            const { name, food, washroom, cctv, parking, wifi, laundry, geyser, fan, studyTable, locker, cupboard, doctorOnCall, matress, prePayment, postPayment, lat, lon, address, city, price, } = JSON.parse(req.body.form);
             const imageUrls = req.files
                 ? yield Promise.all(req.files.map((file) => {
                     return (0, upload_1.uploadFile)(file);
@@ -50,7 +46,7 @@ exports.addHostel = [multer_1.default.array("images", 5), (req, res) => __awaite
                     wifi,
                     washroom,
                     user: {
-                        connect: { id: user === null || user === void 0 ? void 0 : user.id }
+                        connect: { id: req.user.id }
                     },
                     info: {
                         create: {
@@ -70,114 +66,91 @@ exports.addHostel = [multer_1.default.array("images", 5), (req, res) => __awaite
             res.status(200).json({ error: "Internal Server Error." });
         }
     })];
-const getHostel = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getHostel = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
     try {
-        const id = req.params.id;
-        try {
-            const hostel = yield client_1.default.hostels.findUnique({ where: { id } });
-            res.status(200).json({ message: "Success", hostel });
-        }
-        catch (error) {
-            res.status(404).json({ error: "Hostel not found!" });
-        }
+        const updatedHostel = yield client_1.default.hostels.update({
+            where: { id },
+            data: {
+                score: {
+                    increment: 1,
+                },
+            },
+        });
+        res.status(200).json({ message: "Success", hostel: updatedHostel });
     }
     catch (error) {
-        res.status(500).json({ error: "Internal Server Error." });
+        if (error.code == "P2025") {
+            res.status(404).json({ message: "Hostel not found!" });
+        }
     }
-});
-exports.getHostel = getHostel;
-const deleteHostel = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+exports.deleteHostel = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    const id = req.params.id;
     try {
-        const id = req.params.id;
-        try {
-            const hostel = yield client_1.default.hostels.findUnique({ where: { id }, include: { info: true } });
-            console.log(hostel === null || hostel === void 0 ? void 0 : hostel.info.imgs);
-            yield client_1.default.hostels.delete({ where: { id } });
-            yield Promise.all((_a = ((hostel === null || hostel === void 0 ? void 0 : hostel.info.imgs) || [])) === null || _a === void 0 ? void 0 : _a.map((img) => __awaiter(void 0, void 0, void 0, function* () {
-                yield (0, delete_1.default)(img);
-            })));
+        const hostel = yield client_1.default.hostels.findUnique({ where: { id }, include: { info: true } });
+        yield client_1.default.hostels.delete({ where: { id } });
+        yield Promise.all((_a = ((hostel === null || hostel === void 0 ? void 0 : hostel.info.imgs) || [])) === null || _a === void 0 ? void 0 : _a.map((img) => __awaiter(void 0, void 0, void 0, function* () {
+            yield (0, delete_1.default)(img);
+        })));
+    }
+    catch (error) {
+        res.status(404).json({ error: "Failed to delete the hostel." });
+    }
+}));
+exports.getHostels = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+    const token = req.query.token;
+    const { id } = (0, auth_1.getData)(token);
+    const rooms = yield client_1.default.hostels.findMany({
+        skip,
+        take: pageSize,
+        where: { usersId: id },
+        orderBy: {
+            createdAt: 'desc'
+        },
+        include: {
+            info: true
         }
-        catch (error) {
-            res.status(404).json({ error: "Failed to delete the hostel." });
-        }
-    }
-    catch (error) {
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-});
-exports.deleteHostel = deleteHostel;
-const getHostels = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const pageSize = 10;
-        const skip = (page - 1) * pageSize;
-        const token = req.query.token;
-        const { id } = (0, auth_1.getData)(token);
-        const rooms = yield client_1.default.hostels.findMany({
-            skip,
-            take: pageSize,
-            where: { usersId: id },
-            orderBy: {
-                createdAt: 'desc'
-            },
-            include: {
-                info: true
-            }
-        });
-        const totalCount = yield client_1.default.rooms.count();
-        res.status(200).json({
-            data: rooms,
-            totalCount,
-            currentPage: page,
-            totalPages: Math.ceil(totalCount / pageSize),
-        });
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error." });
-    }
-});
-exports.getHostels = getHostels;
-const getAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const hostels = yield client_1.default.hostels.findMany({ include: { info: true } });
-        res.status(200).json({ message: "Success", hostels });
-    }
-    catch (error) {
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-});
-exports.getAll = getAll;
-const filter = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { cctv, cupboard, doctorOnCall, fan, food, geyser, laundry, locker, matress, max, min, parking, studyTable, washroom, wifi } = req.body;
-        const hostels = yield client_1.default.hostels.findMany({
-            where: {
-                food,
-                washroom,
-                cctv, cupboard,
-                doctorOnCall, fan,
-                geyser,
-                laundry,
-                locker,
-                matress,
-                parking,
-                studyTable,
-                wifi,
-                info: {
-                    price: {
-                        gte: min,
-                        lte: max
-                    }
+    });
+    const totalCount = yield client_1.default.rooms.count();
+    res.status(200).json({
+        data: rooms,
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / pageSize),
+    });
+}));
+exports.getAll = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const hostels = yield client_1.default.hostels.findMany({ include: { info: true } });
+    res.status(200).json({ message: "Success", hostels });
+}));
+exports.filter = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { cctv, cupboard, doctorOnCall, fan, food, geyser, laundry, locker, matress, max, min, parking, studyTable, washroom, wifi } = req.body;
+    const hostels = yield client_1.default.hostels.findMany({
+        where: {
+            food,
+            washroom,
+            cctv, cupboard,
+            doctorOnCall, fan,
+            geyser,
+            laundry,
+            locker,
+            matress,
+            parking,
+            studyTable,
+            wifi,
+            info: {
+                price: {
+                    gte: min,
+                    lte: max
                 }
-            },
-            include: { info: true }
-        });
-        res.status(200).json({ message: "Success", hostels });
-    }
-    catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error });
-    }
-});
-exports.filter = filter;
+            }
+        },
+        include: { info: true }
+    });
+    res.status(200).json({ message: "Success", hostels });
+}));

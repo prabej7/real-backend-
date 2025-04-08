@@ -16,38 +16,27 @@ exports.verifyOtp = exports.getOtp = void 0;
 const auth_1 = require("../service/auth");
 const mailer_1 = __importDefault(require("../service/mailer"));
 const client_1 = __importDefault(require("../config/client"));
-const getOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const email = req.params.email;
-        const otp = Math.floor(Math.random() * 1000000);
-        yield (0, mailer_1.default)(email, otp);
-        const token = (0, auth_1.getToken)({ otp, email });
-        res.status(200).json({ token });
+const asyncHandler_1 = __importDefault(require("src/middleware/asyncHandler"));
+exports.getOtp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = req.params.email;
+    const otp = Math.floor(Math.random() * 1000000);
+    yield (0, mailer_1.default)(email, otp);
+    const token = (0, auth_1.getToken)({ otp, email });
+    res.status(200).json({ token });
+}));
+exports.verifyOtp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { otp, token } = req.body;
+    const { otp: actualOtp, email } = (0, auth_1.getData)(token);
+    if (otp == actualOtp) {
+        yield client_1.default.users.update({
+            where: { email },
+            data: {
+                verified: true
+            }
+        });
+        res.status(200).json({ message: "Verified" });
     }
-    catch (error) {
-        res.status(500).json({ error: "Internal Server Error." });
+    else {
+        res.status(401).json({ error: "Invalid or expired otp." });
     }
-});
-exports.getOtp = getOtp;
-const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { otp, token } = req.body;
-        const { otp: actualOtp, email } = (0, auth_1.getData)(token);
-        if (otp == actualOtp) {
-            yield client_1.default.users.update({
-                where: { email },
-                data: {
-                    verified: true
-                }
-            });
-            res.status(200).json({ message: "Verified" });
-        }
-        else {
-            res.status(401).json({ error: "Invalid or expired otp." });
-        }
-    }
-    catch (error) {
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-});
-exports.verifyOtp = verifyOtp;
+}));

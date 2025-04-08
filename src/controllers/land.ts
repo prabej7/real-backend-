@@ -1,3 +1,4 @@
+import asyncHandler from "src/middleware/asyncHandler";
 import prisma from "../config/client";
 import upload from "../middleware/multer";
 import { getData } from "../service/auth";
@@ -20,18 +21,8 @@ export const addLand = [upload.array("images", 5), async (req: Request, res: Res
             roadSize,
             size,
             waterTank,
-            token,
+
         } = JSON.parse(req.body.form);
-
-        const { id } = getData(token) as { id: string };
-
-        const user = await prisma.users.findUnique({ where: { id } });
-
-        if (!user) {
-            res.status(404).json({ message: "User not found" });
-            return;
-        }
-
         const imageUrls = req.files
             ? await Promise.all(
                 (req.files as Express.Multer.File[]).map((file) => {
@@ -49,7 +40,7 @@ export const addLand = [upload.array("images", 5), async (req: Request, res: Res
                 size,
                 waterTank,
                 user: {
-                    connect: { id: user.id }
+                    connect: { id: req.user.id }
                 },
                 info: {
                     create: {
@@ -72,116 +63,109 @@ export const addLand = [upload.array("images", 5), async (req: Request, res: Res
     }
 }];
 
-export const getLand = async (req: Request, res: Response) => {
+export const getLand = asyncHandler(async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-        try {
-            const land = await prisma.lands.findUnique({ where: { id } });
-            res.status(200).json({ message: "Land found!", land });
-        } catch (error) {
+        const land = await prisma.lands.update({ where: { id }, data: { score: { increment: 1 } } });
+        res.status(200).json({ message: "Land found!", land });
+    } catch (err: any) {
+        if (err.code == "P2025") {
             res.status(404).json({ error: "Land not found!" });
+            return;
         }
-    } catch (err) {
         res.status(500).json({ error: "Internal Server Error." });
     }
-};
+});
 
-export const deleteLand = async (req: Request, res: Response) => {
+export const deleteLand = asyncHandler(async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-        try {
-            const land = await prisma.lands.findUnique({ where: { id }, include: { info: true } });
-            await prisma.lands.delete({ where: { id } });
+        const land = await prisma.lands.findUnique({ where: { id }, include: { info: true } });
+        await prisma.lands.delete({ where: { id } });
 
-            await Promise.all(
-                (land?.info.imgs || []).map(async (img) => {
-                    await deleteFile(img);
-                })
-            );
+        await Promise.all(
+            (land?.info.imgs || []).map(async (img) => {
+                await deleteFile(img);
+            })
+        );
 
-            res.status(200).json({ message: "Land deleted successfully!" });
-        } catch (error) {
-            res.status(404).json({ error: "Land not found!" });
+        res.status(200).json({ message: "Land deleted successfully!" });
+
+    } catch (error: any) {
+        if (error.code == "P2025") {
+            res.status(404).json({ message: "Land not found!" });
+            return;
         }
-    } catch (error) {
         res.status(500).json({ error: "Internal Server Error." });
     }
-}
+})
 
-export const getLands = async (req: Request, res: Response) => {
-    try {
-        const page = parseInt(req.query.page as string) || 1;
-        const pageSize = 10;
+export const getLands = asyncHandler(async (req: Request, res: Response) => {
 
-        const skip = (page - 1) * pageSize;
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = 10;
 
-        const { id: usersId } = getData(req.query.token as string) as { id: string };
+    const skip = (page - 1) * pageSize;
 
-        const rooms = await prisma.lands.findMany({
-            skip,
-            take: pageSize,
-            where: { usersId },
-            orderBy: {
-                createdAt: 'desc'
-            },
-            include: {
-                info: true
+    const { id: usersId } = getData(req.query.token as string) as { id: string };
+
+    const rooms = await prisma.lands.findMany({
+        skip,
+        take: pageSize,
+        where: { usersId },
+        orderBy: {
+            createdAt: 'desc'
+        },
+        include: {
+            info: true
+        }
+    });
+
+
+    const totalCount = await prisma.rooms.count();
+
+    res.status(200).json({
+        data: rooms,
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / pageSize),
+    });
+
+});
+
+export const getAll = asyncHandler(async (req: Request, res: Response) => {
+
+    const lands = await prisma.lands.findMany({ include: { info: true } });
+    res.status(200).json({ message: "Success", lands });
+
+})
+
+export const filter = asyncHandler(async (req: Request, res: Response) => {
+
+    const { size, parking, waterTank, balcony, furnished, roadSize, min, max } = req.body;
+
+    const where = {
+        ...(size ? { size: size } : {}),
+        ...(parking ? { parking: parking } : {}),
+        ...(waterTank ? { waterTank: waterTank } : {}),
+        ...(balcony ? { balcony: balcony } : {}),
+        ...(furnished ? { furnished: furnished } : {}),
+        ...(roadSize ? { roadSize: roadSize } : {}),
+        info: {
+            price: {
+                gte: min,
+                lte: max
             }
-        });
+        }
+    };
 
+    const lands = await prisma.lands.findMany({
+        where,
+        include: {
+            info: true
+        }
+    });
 
-        const totalCount = await prisma.rooms.count();
+    res.status(200).json({ message: "Success", lands });
 
-        res.status(200).json({
-            data: rooms,
-            totalCount,
-            currentPage: page,
-            totalPages: Math.ceil(totalCount / pageSize),
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error." });
-    }
-}
-
-export const getAll = async (req: Request, res: Response) => {
-    try {
-        const lands = await prisma.lands.findMany({ include: { info: true } });
-        res.status(200).json({ message: "Success", lands });
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-}
-
-export const filter = async (req: Request, res: Response) => {
-    try {
-        const { size, parking, waterTank, balcony, furnished, roadSize, min, max } = req.body;
-
-        const where = {
-            ...(size ? { size: size } : {}),
-            ...(parking ? { parking: parking } : {}),
-            ...(waterTank ? { waterTank: waterTank } : {}),
-            ...(balcony ? { balcony: balcony } : {}),
-            ...(furnished ? { furnished: furnished } : {}),
-            ...(roadSize ? { roadSize: roadSize } : {}),
-            info: {
-                price: {
-                    gte: min,
-                    lte: max
-                }
-            }
-        };
-
-        const lands = await prisma.lands.findMany({
-            where,
-            include: {
-                info: true
-            }
-        });
-
-        res.status(200).json({ message: "Success", lands });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-}
+});

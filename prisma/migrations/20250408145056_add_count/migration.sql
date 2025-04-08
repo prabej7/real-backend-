@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Hostels" ADD COLUMN     "score" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "Lands" ADD COLUMN     "score" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "Rooms" ADD COLUMN     "score" INTEGER NOT NULL DEFAULT 0;

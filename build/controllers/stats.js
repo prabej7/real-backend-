@@ -13,54 +13,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMonthlyUser = exports.getCounts = void 0;
+const asyncHandler_1 = __importDefault(require("src/middleware/asyncHandler"));
 const client_1 = __importDefault(require("../config/client"));
-const getCounts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const roomCount = yield client_1.default.rooms.count();
-        const hostelCount = yield client_1.default.hostels.count();
-        const landCount = yield client_1.default.lands.count();
-        res.status(200).json({ roomCount, hostelCount, landCount });
+exports.getCounts = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const roomCount = yield client_1.default.rooms.count();
+    const hostelCount = yield client_1.default.hostels.count();
+    const landCount = yield client_1.default.lands.count();
+    res.status(200).json({ roomCount, hostelCount, landCount });
+}));
+exports.getMonthlyUser = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const chartData = [];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    for (const month of months) {
+        const startDate = new Date(`2024-${String(months.indexOf(month) + 1).padStart(2, '0')}-01T00:00:00Z`);
+        const endDate = new Date(`2024-${String(months.indexOf(month) + 1).padStart(2, '0')}-01T00:00:00Z`);
+        endDate.setMonth(endDate.getMonth() + 1);
+        const [verifiedUsers, unverifiedUsers] = yield Promise.all([
+            client_1.default.users.count({
+                where: {
+                    createdAt: {
+                        gte: startDate,
+                        lt: endDate
+                    },
+                    verified: true
+                }
+            }),
+            client_1.default.users.count({
+                where: {
+                    createdAt: {
+                        gte: startDate,
+                        lt: endDate
+                    },
+                    verified: false
+                }
+            })
+        ]);
+        chartData.push({ month, verified: verifiedUsers, unverified: unverifiedUsers });
     }
-    catch (error) {
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-});
-exports.getCounts = getCounts;
-const getMonthlyUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const chartData = [];
-        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        for (const month of months) {
-            const startDate = new Date(`2024-${String(months.indexOf(month) + 1).padStart(2, '0')}-01T00:00:00Z`);
-            const endDate = new Date(`2024-${String(months.indexOf(month) + 1).padStart(2, '0')}-01T00:00:00Z`);
-            endDate.setMonth(endDate.getMonth() + 1); // Move to the first day of the next month
-            const [verifiedUsers, unverifiedUsers] = yield Promise.all([
-                client_1.default.users.count({
-                    where: {
-                        createdAt: {
-                            gte: startDate,
-                            lt: endDate
-                        },
-                        verified: true
-                    }
-                }),
-                client_1.default.users.count({
-                    where: {
-                        createdAt: {
-                            gte: startDate,
-                            lt: endDate
-                        },
-                        verified: false
-                    }
-                })
-            ]);
-            chartData.push({ month, verified: verifiedUsers, unverified: unverifiedUsers });
-        }
-        res.status(200).json(chartData);
-    }
-    catch (error) {
-        console.error(error); // Log the error for debugging
-        res.status(500).json({ error: "Internal Server Error." });
-    }
-});
-exports.getMonthlyUser = getMonthlyUser;
+    res.status(200).json(chartData);
+}));
