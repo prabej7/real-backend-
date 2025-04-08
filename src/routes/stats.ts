@@ -1,4 +1,4 @@
-import { auth } from "src/middleware/auth";
+import { auth } from "../middleware/auth";
 import { getCounts, getMonthlyUser } from "../controllers/stats";
 import { Router } from "express";
 

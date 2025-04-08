@@ -13,8 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.auth = void 0;
-const client_1 = __importDefault(require("src/config/client"));
-const auth_1 = require("src/service/auth");
+const client_1 = __importDefault(require("../config/client"));
+const auth_1 = require("../service/auth");
 const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {

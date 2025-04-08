@@ -7,7 +7,7 @@ import {
     getRooms,
     filter
 } from "../controllers/room";
-import { auth } from "src/middleware/auth";
+import { auth } from "../middleware/auth";
 
 const roomRouter = Router()
 

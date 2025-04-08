@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const room_1 = require("../controllers/room");
-const auth_1 = require("src/middleware/auth");
+const auth_1 = require("../middleware/auth");
 const roomRouter = (0, express_1.Router)();
 roomRouter.post("/room", auth_1.auth, room_1.addRoom)
     .get("/room/:id", auth_1.auth, room_1.getRoom)

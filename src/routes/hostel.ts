@@ -1,4 +1,4 @@
-import { auth } from "src/middleware/auth";
+import { auth } from "../middleware/auth";
 import { addHostel, deleteHostel, filter, getAll, getHostel, getHostels } from "../controllers/hostel";
 import { Router } from "express";
 

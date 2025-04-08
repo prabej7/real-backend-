@@ -1,4 +1,4 @@
-import asyncHandler from "src/middleware/asyncHandler";
+import  asyncHandler  from '../middleware/asyncHandler.middleware';
 import prisma from "../config/client";
 import { Request, Response } from "express";
 

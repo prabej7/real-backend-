@@ -4,7 +4,7 @@ import upload from '../middleware/multer';
 import { uploadFile } from '../service/upload';
 import deleteFile from '../service/delete';
 import { getData } from '../service/auth';
-import asyncHandler from 'src/middleware/asyncHandler';
+import  asyncHandler  from '../middleware/asyncHandler.middleware';
 
 export const addRoom = [
     upload.array('images', 5),
@@ -32,7 +32,7 @@ export const addRoom = [
                 token,
             } = JSON.parse(req.body.form);
 
-            
+
 
             // Handle file uploads
             const imageUrls = req.files
@@ -57,7 +57,7 @@ export const addRoom = [
                     waterTank,
                     wifi,
                     user: {
-                        connect: { id: req.user.id }, 
+                        connect: { id: req.user.id },
                     },
                     info: {
                         create: {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const auth_1 = require("src/middleware/auth");
+const auth_1 = require("../middleware/auth");
 const land_1 = require("../controllers/land");
 const express_1 = require("express");
 const landRouter = (0, express_1.Router)();

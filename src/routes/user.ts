@@ -2,7 +2,7 @@ import { Router } from "express";
 import { register, login, getUser, getAllUser } from "../controllers/user";
 import { validateData } from "../middleware/zod.middleware";
 import { registerSchema } from "../validations/valudations";
-import { auth } from "src/middleware/auth";
+import { auth } from "../middleware/auth";
 
 const router = Router();
 

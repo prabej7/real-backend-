@@ -13,15 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMonthlyUser = exports.getCounts = void 0;
-const asyncHandler_1 = __importDefault(require("src/middleware/asyncHandler"));
+const asyncHandler_middleware_1 = __importDefault(require("../middleware/asyncHandler.middleware"));
 const client_1 = __importDefault(require("../config/client"));
-exports.getCounts = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getCounts = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const roomCount = yield client_1.default.rooms.count();
     const hostelCount = yield client_1.default.hostels.count();
     const landCount = yield client_1.default.lands.count();
     res.status(200).json({ roomCount, hostelCount, landCount });
 }));
-exports.getMonthlyUser = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getMonthlyUser = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const chartData = [];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     for (const month of months) {

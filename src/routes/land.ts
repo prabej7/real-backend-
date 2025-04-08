@@ -1,4 +1,4 @@
-import { auth } from "src/middleware/auth";
+import { auth } from "../middleware/auth";
 import { addLand, deleteLand, getLand, getLands, getAll, filter } from "../controllers/land";
 import { Router } from "express";
 

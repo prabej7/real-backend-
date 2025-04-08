@@ -18,7 +18,7 @@ const multer_1 = __importDefault(require("../middleware/multer"));
 const upload_1 = require("../service/upload");
 const delete_1 = __importDefault(require("../service/delete"));
 const auth_1 = require("../service/auth");
-const asyncHandler_1 = __importDefault(require("src/middleware/asyncHandler"));
+const asyncHandler_middleware_1 = __importDefault(require("../middleware/asyncHandler.middleware"));
 exports.addRoom = [
     multer_1.default.array('images', 5),
     (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -66,7 +66,7 @@ exports.addRoom = [
         }
     }),
 ];
-exports.getRoom = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getRoom = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
         const updatedRoom = yield client_1.default.rooms.update({
@@ -83,7 +83,7 @@ exports.getRoom = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, vo
         res.status(500).json({ error: "Internal Server Error." });
     }
 }));
-exports.deleteRoom = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.deleteRoom = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
         try {
@@ -104,7 +104,7 @@ exports.deleteRoom = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0,
         res.status(500).json({ error: "Internal Server Error." });
     }
 }));
-exports.getRooms = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getRooms = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const page = parseInt(req.query.page) || 1;
     const pageSize = 10;
     const token = req.query.token;
@@ -131,7 +131,7 @@ exports.getRooms = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, v
         totalPages: Math.ceil(totalCount / pageSize),
     });
 }));
-exports.getAll = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getAll = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const rooms = yield client_1.default.rooms.findMany({ include: { info: true } });
         res.status(200).json({ rooms });
@@ -140,7 +140,7 @@ exports.getAll = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, voi
         res.status(500).json({ error: "Internal Server Error." });
     }
 }));
-exports.filter = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.filter = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { balcony, flat, furnished, waterfacility, wifi, max, min, noOfRooms } = req.body;
     const rooms = yield client_1.default.rooms.findMany({
         where: {

@@ -18,7 +18,7 @@ const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
 const delete_1 = __importDefault(require("../service/delete"));
 const auth_1 = require("../service/auth");
-const asyncHandler_1 = __importDefault(require("src/middleware/asyncHandler"));
+const asyncHandler_middleware_1 = __importDefault(require("../middleware/asyncHandler.middleware"));
 exports.addHostel = [multer_1.default.array("images", 5), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { name, food, washroom, cctv, parking, wifi, laundry, geyser, fan, studyTable, locker, cupboard, doctorOnCall, matress, prePayment, postPayment, lat, lon, address, city, price, } = JSON.parse(req.body.form);
@@ -66,7 +66,7 @@ exports.addHostel = [multer_1.default.array("images", 5), (req, res) => __awaite
             res.status(200).json({ error: "Internal Server Error." });
         }
     })];
-exports.getHostel = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getHostel = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     try {
         const updatedHostel = yield client_1.default.hostels.update({
@@ -85,7 +85,7 @@ exports.getHostel = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, 
         }
     }
 }));
-exports.deleteHostel = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.deleteHostel = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const id = req.params.id;
     try {
@@ -99,7 +99,7 @@ exports.deleteHostel = (0, asyncHandler_1.default)((req, res) => __awaiter(void 
         res.status(404).json({ error: "Failed to delete the hostel." });
     }
 }));
-exports.getHostels = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getHostels = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const page = parseInt(req.query.page) || 1;
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
@@ -124,11 +124,11 @@ exports.getHostels = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0,
         totalPages: Math.ceil(totalCount / pageSize),
     });
 }));
-exports.getAll = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getAll = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const hostels = yield client_1.default.hostels.findMany({ include: { info: true } });
     res.status(200).json({ message: "Success", hostels });
 }));
-exports.filter = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.filter = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { cctv, cupboard, doctorOnCall, fan, food, geyser, laundry, locker, matress, max, min, parking, studyTable, washroom, wifi } = req.body;
     const hostels = yield client_1.default.hostels.findMany({
         where: {

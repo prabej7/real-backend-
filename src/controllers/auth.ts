@@ -2,7 +2,7 @@ import { Response, Request } from 'express'
 import { getToken, getData } from '../service/auth';
 import sendMail from '../service/mailer';
 import prisma from '../config/client';
-import asyncHandler from 'src/middleware/asyncHandler';
+import  asyncHandler  from '../middleware/asyncHandler.middleware';
 
 export const getOtp = asyncHandler(async (req: Request, res: Response) => {
 

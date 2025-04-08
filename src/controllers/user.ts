@@ -1,8 +1,8 @@
 import { Response, Request } from 'express';
 import prisma from '../config/client';
 import { hashSync, compareSync } from 'bcrypt';
-import { getData, getToken } from '../service/auth';
-import asyncHandler from 'src/middleware/asyncHandler';
+import { getToken } from '../service/auth';
+import  asyncHandler  from '../middleware/asyncHandler.middleware';
 
 
 export const register = asyncHandler(async (req: Request, res: Response) => {

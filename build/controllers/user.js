@@ -16,8 +16,8 @@ exports.getAllUser = exports.getUser = exports.login = exports.register = void 0
 const client_1 = __importDefault(require("../config/client"));
 const bcrypt_1 = require("bcrypt");
 const auth_1 = require("../service/auth");
-const asyncHandler_1 = __importDefault(require("src/middleware/asyncHandler"));
-exports.register = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const asyncHandler_middleware_1 = __importDefault(require("../middleware/asyncHandler.middleware"));
+exports.register = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const isUser = yield client_1.default.users.findFirst({ where: { email: email } });
     if (isUser) {
@@ -38,7 +38,7 @@ exports.register = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, v
         })
     });
 }));
-exports.login = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.login = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const user = yield client_1.default.users.findFirst({ where: { email: email } });
     if (!user) {
@@ -56,10 +56,10 @@ exports.login = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void
     res.status(401).json({ error: "Email or password is incorrect!" });
     return;
 }));
-exports.getUser = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getUser = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.status(200).json(req.user);
 }));
-exports.getAllUser = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getAllUser = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allUsers = yield client_1.default.users.findMany();
     res.status(200).json({ users: allUsers });
 }));
