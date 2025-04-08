@@ -3,7 +3,6 @@ import { uploadFile } from "../service/upload";
 import prisma from "../config/client";
 import upload from "../middleware/multer";
 import deleteFile from "../service/delete";
-import { getData } from "../service/auth";
 import  asyncHandler  from '../middleware/asyncHandler.middleware';
 
 export const addHostel = [upload.array("images", 5), async (req: Request, res: Response) => {
@@ -126,13 +125,10 @@ export const getHostels = asyncHandler(async (req: Request, res: Response) => {
 
     const skip = (page - 1) * pageSize;
 
-    const token = req.query.token as string;
-    const { id } = getData(token) as { id: string }
-
     const rooms = await prisma.hostels.findMany({
         skip,
         take: pageSize,
-        where: { usersId: id },
+        where: { usersId: req.user.id },
         orderBy: {
             createdAt: 'desc'
         },

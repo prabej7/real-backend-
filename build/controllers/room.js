@@ -17,7 +17,6 @@ const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
 const upload_1 = require("../service/upload");
 const delete_1 = __importDefault(require("../service/delete"));
-const auth_1 = require("../service/auth");
 const asyncHandler_middleware_1 = __importDefault(require("../middleware/asyncHandler.middleware"));
 exports.addRoom = [
     multer_1.default.array('images', 5),
@@ -107,14 +106,12 @@ exports.deleteRoom = (0, asyncHandler_middleware_1.default)((req, res) => __awai
 exports.getRooms = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const page = parseInt(req.query.page) || 1;
     const pageSize = 10;
-    const token = req.query.token;
-    const { id } = (0, auth_1.getData)(token);
     const skip = (page - 1) * pageSize;
     const rooms = yield client_1.default.rooms.findMany({
         skip,
         take: pageSize,
         where: {
-            usersId: id
+            usersId: req.user.id
         },
         orderBy: {
             createdAt: 'desc'

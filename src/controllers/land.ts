@@ -1,7 +1,6 @@
-import  asyncHandler  from '../middleware/asyncHandler.middleware';
+import asyncHandler from '../middleware/asyncHandler.middleware';
 import prisma from "../config/client";
 import upload from "../middleware/multer";
-import { getData } from "../service/auth";
 import deleteFile from "../service/delete";
 import { uploadFile } from "../service/upload";
 import { Request, Response } from "express";
@@ -107,12 +106,12 @@ export const getLands = asyncHandler(async (req: Request, res: Response) => {
 
     const skip = (page - 1) * pageSize;
 
-    const { id: usersId } = getData(req.query.token as string) as { id: string };
+
 
     const rooms = await prisma.lands.findMany({
         skip,
         take: pageSize,
-        where: { usersId },
+        where: { id: req.user.id },
         orderBy: {
             createdAt: 'desc'
         },

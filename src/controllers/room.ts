@@ -3,7 +3,6 @@ import prisma from '../config/client';
 import upload from '../middleware/multer';
 import { uploadFile } from '../service/upload';
 import deleteFile from '../service/delete';
-import { getData } from '../service/auth';
 import  asyncHandler  from '../middleware/asyncHandler.middleware';
 
 export const addRoom = [
@@ -129,8 +128,6 @@ export const getRooms = asyncHandler(async (req: Request, res: Response) => {
 
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = 10;
-    const token = req.query.token as string;
-    const { id } = getData(token) as { id: string };
     const skip = (page - 1) * pageSize;
 
 
@@ -138,7 +135,7 @@ export const getRooms = asyncHandler(async (req: Request, res: Response) => {
         skip,
         take: pageSize,
         where: {
-            usersId: id
+            usersId: req.user.id
         },
         orderBy: {
             createdAt: 'desc'

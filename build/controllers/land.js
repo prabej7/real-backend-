@@ -16,7 +16,6 @@ exports.filter = exports.getAll = exports.getLands = exports.deleteLand = export
 const asyncHandler_middleware_1 = __importDefault(require("../middleware/asyncHandler.middleware"));
 const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
-const auth_1 = require("../service/auth");
 const delete_1 = __importDefault(require("../service/delete"));
 const upload_1 = require("../service/upload");
 exports.addLand = [multer_1.default.array("images", 5), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -93,11 +92,10 @@ exports.getLands = (0, asyncHandler_middleware_1.default)((req, res) => __awaite
     const page = parseInt(req.query.page) || 1;
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
-    const { id: usersId } = (0, auth_1.getData)(req.query.token);
     const rooms = yield client_1.default.lands.findMany({
         skip,
         take: pageSize,
-        where: { usersId },
+        where: { id: req.user.id },
         orderBy: {
             createdAt: 'desc'
         },
