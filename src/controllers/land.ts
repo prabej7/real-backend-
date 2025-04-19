@@ -65,7 +65,7 @@ export const addLand = [upload.array("images", 5), async (req: Request, res: Res
 export const getLand = asyncHandler(async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-        const land = await prisma.lands.update({ where: { id }, data: { score: { increment: 1 } } });
+        const land = await prisma.lands.findUnique({ where: { id } });
         res.status(200).json({ message: "Land found!", land });
     } catch (err: any) {
         if (err.code == "P2025") {
@@ -168,3 +168,19 @@ export const filter = asyncHandler(async (req: Request, res: Response) => {
     res.status(200).json({ message: "Success", lands });
 
 });
+
+export const updateScore = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.body as { id: string };
+    await prisma.lands.update({
+        where: { id },
+        data: { score: { increment: 1 } }
+    });
+
+    res.status(200).json({ message: "Score updated successfully!" });
+});
+
+export const getPopularLands = asyncHandler(async (req: Request, res: Response) => {
+    const lands = await prisma.lands.findMany({ where: { score: { gt: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+
+    res.status(200).json({ message: "Popular lands!", lands });
+})

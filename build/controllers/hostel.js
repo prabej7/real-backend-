@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filter = exports.getAll = exports.getHostels = exports.deleteHostel = exports.getHostel = exports.addHostel = void 0;
+exports.getPopularHostels = exports.updateScore = exports.filter = exports.getAll = exports.getHostels = exports.deleteHostel = exports.getHostel = exports.addHostel = void 0;
 const upload_1 = require("../service/upload");
 const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
@@ -68,15 +68,10 @@ exports.addHostel = [multer_1.default.array("images", 5), (req, res) => __awaite
 exports.getHostel = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     try {
-        const updatedHostel = yield client_1.default.hostels.update({
+        const hostel = yield client_1.default.hostels.findUnique({
             where: { id },
-            data: {
-                score: {
-                    increment: 1,
-                },
-            },
         });
-        res.status(200).json({ message: "Success", hostel: updatedHostel });
+        res.status(200).json({ message: "Success", hostel });
     }
     catch (error) {
         if (error.code == "P2025") {
@@ -150,4 +145,16 @@ exports.filter = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(
         include: { info: true }
     });
     res.status(200).json({ message: "Success", hostels });
+}));
+exports.updateScore = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.body;
+    yield client_1.default.hostels.update({
+        where: { id },
+        data: { score: { increment: 1 } }
+    });
+    res.status(200).json({ message: "Score updated successfully!" });
+}));
+exports.getPopularHostels = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const hostels = yield client_1.default.hostels.findMany({ where: { score: { gt: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+    res.status(200).json({ message: "Popular hostels!", hostels });
 }));

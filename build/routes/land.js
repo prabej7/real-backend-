@@ -9,5 +9,7 @@ landRouter.post("/land", auth_1.auth, land_1.addLand)
     .delete("/land/:id", auth_1.auth, land_1.deleteLand)
     .get("/lands", auth_1.auth, land_1.getLands)
     .get("/all-lands", auth_1.auth, land_1.getAll)
+    .get("/land-score", auth_1.auth, land_1.updateScore)
+    .get("/popular-lands", auth_1.auth, land_1.getPopularLands)
     .post("/filter-land", auth_1.auth, land_1.filter);
 exports.default = landRouter;

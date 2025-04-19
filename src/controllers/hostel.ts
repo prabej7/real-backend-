@@ -3,7 +3,7 @@ import { uploadFile } from "../service/upload";
 import prisma from "../config/client";
 import upload from "../middleware/multer";
 import deleteFile from "../service/delete";
-import  asyncHandler  from '../middleware/asyncHandler.middleware';
+import asyncHandler from '../middleware/asyncHandler.middleware';
 
 export const addHostel = [upload.array("images", 5), async (req: Request, res: Response) => {
     try {
@@ -85,15 +85,10 @@ export const addHostel = [upload.array("images", 5), async (req: Request, res: R
 export const getHostel = asyncHandler(async (req: Request, res: Response) => {
     const id = req.params.id;
     try {
-        const updatedHostel = await prisma.hostels.update({
+        const hostel = await prisma.hostels.findUnique({
             where: { id },
-            data: {
-                score: {
-                    increment: 1,
-                },
-            },
         });
-        res.status(200).json({ message: "Success", hostel: updatedHostel });
+        res.status(200).json({ message: "Success", hostel });
     } catch (error: any) {
         if (error.code == "P2025") {
             res.status(404).json({ message: "Hostel not found!" });
@@ -217,3 +212,19 @@ export const filter = asyncHandler(async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "Success", hostels });
 });
+
+export const updateScore = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.body as { id: string }
+    await prisma.hostels.update({
+        where: { id },
+        data: { score: { increment: 1 } }
+    });
+
+    res.status(200).json({ message: "Score updated successfully!" });
+})
+
+export const getPopularHostels = asyncHandler(async (req: Request, res: Response) => {
+    const hostels = await prisma.hostels.findMany({ where: { score: { gt: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+
+    res.status(200).json({ message: "Popular hostels!", hostels });
+})

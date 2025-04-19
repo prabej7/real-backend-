@@ -8,6 +8,8 @@ roomRouter.post("/room", auth_1.auth, room_1.addRoom)
     .get("/room/:id", auth_1.auth, room_1.getRoom)
     .delete("/room/:id", auth_1.auth, room_1.deleteRoom)
     .get("/rooms", auth_1.auth, room_1.getRooms)
-    .get("/all-rooms", auth_1.auth, room_1.getAll);
-roomRouter.post("/filter-room", room_1.filter);
+    .get("/all-rooms", auth_1.auth, room_1.getAll)
+    .get("/popular-rooms", auth_1.auth, room_1.getPopularRooms)
+    .post("/filter-room", room_1.filter)
+    .post("/room-score", auth_1.auth, room_1.updateScore);
 exports.default = roomRouter;

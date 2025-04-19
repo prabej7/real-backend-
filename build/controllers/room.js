@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filter = exports.getAll = exports.getRooms = exports.deleteRoom = exports.getRoom = exports.addRoom = void 0;
+exports.getPopularRooms = exports.updateScore = exports.filter = exports.getAll = exports.getRooms = exports.deleteRoom = exports.getRoom = exports.addRoom = void 0;
 const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
 const upload_1 = require("../service/upload");
@@ -68,11 +68,10 @@ exports.addRoom = [
 exports.getRoom = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
-        const updatedRoom = yield client_1.default.rooms.update({
+        const room = yield client_1.default.rooms.findUnique({
             where: { id },
-            data: { score: { increment: 1 } }
         });
-        res.status(200).json({ message: "Success", room: updatedRoom });
+        res.status(200).json({ message: "Success", room });
     }
     catch (err) {
         if (err.code == "P2025") {
@@ -157,4 +156,16 @@ exports.filter = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(
         include: { info: true }
     });
     res.status(200).json({ message: "Success", rooms });
+}));
+exports.updateScore = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.body;
+    yield client_1.default.rooms.update({
+        where: { id },
+        data: { score: { increment: 1 } }
+    });
+    res.status(200).json({ message: "Score updated successfully!" });
+}));
+exports.getPopularRooms = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const rooms = yield client_1.default.rooms.findMany({ where: { score: { gt: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+    res.status(200).json({ message: "Popular rooms!", rooms });
 }));

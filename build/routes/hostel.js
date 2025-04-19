@@ -8,6 +8,8 @@ hostelRouter.post("/hostel", auth_1.auth, hostel_1.addHostel)
     .get("/hostel/:id", auth_1.auth, hostel_1.getHostel)
     .get("/hostels", auth_1.auth, hostel_1.getHostels)
     .get("/all-hostels", auth_1.auth, hostel_1.getAll)
+    .get("/hostel-score", auth_1.auth, hostel_1.updateScore)
+    .get("/popular-hostels", auth_1.auth, hostel_1.getPopularHostels)
     .post("/filter-hostel", auth_1.auth, hostel_1.filter)
     .delete("/delete-hostel/:id", auth_1.auth, hostel_1.deleteHostel);
 exports.default = hostelRouter;

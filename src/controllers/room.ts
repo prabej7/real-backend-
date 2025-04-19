@@ -3,7 +3,7 @@ import prisma from '../config/client';
 import upload from '../middleware/multer';
 import { uploadFile } from '../service/upload';
 import deleteFile from '../service/delete';
-import  asyncHandler  from '../middleware/asyncHandler.middleware';
+import asyncHandler from '../middleware/asyncHandler.middleware';
 
 export const addRoom = [
     upload.array('images', 5),
@@ -83,11 +83,10 @@ export const addRoom = [
 export const getRoom = asyncHandler(async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-        const updatedRoom = await prisma.rooms.update({
+        const room = await prisma.rooms.findUnique({
             where: { id },
-            data: { score: { increment: 1 } }
         })
-        res.status(200).json({ message: "Success", room: updatedRoom });
+        res.status(200).json({ message: "Success", room });
     }
     catch (err: any) {
         if (err.code == "P2025") {
@@ -209,3 +208,19 @@ export const filter = asyncHandler(async (req: Request, res: Response) => {
 
 
 });
+
+export const updateScore = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.body as { id: string };
+    await prisma.rooms.update({
+        where: { id },
+        data: { score: { increment: 1 } }
+    });
+
+    res.status(200).json({ message: "Score updated successfully!" });
+});
+
+export const getPopularRooms = asyncHandler(async (req: Request, res: Response) => {
+    const rooms = await prisma.rooms.findMany({ where: { score: { gt: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+
+    res.status(200).json({ message: "Popular rooms!", rooms });
+})

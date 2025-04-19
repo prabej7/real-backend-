@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filter = exports.getAll = exports.getLands = exports.deleteLand = exports.getLand = exports.addLand = void 0;
+exports.getPopularLands = exports.updateScore = exports.filter = exports.getAll = exports.getLands = exports.deleteLand = exports.getLand = exports.addLand = void 0;
 const asyncHandler_middleware_1 = __importDefault(require("../middleware/asyncHandler.middleware"));
 const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
@@ -59,7 +59,7 @@ exports.addLand = [multer_1.default.array("images", 5), (req, res) => __awaiter(
 exports.getLand = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
-        const land = yield client_1.default.lands.update({ where: { id }, data: { score: { increment: 1 } } });
+        const land = yield client_1.default.lands.findUnique({ where: { id } });
         res.status(200).json({ message: "Land found!", land });
     }
     catch (err) {
@@ -130,4 +130,16 @@ exports.filter = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(
         }
     });
     res.status(200).json({ message: "Success", lands });
+}));
+exports.updateScore = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.body;
+    yield client_1.default.lands.update({
+        where: { id },
+        data: { score: { increment: 1 } }
+    });
+    res.status(200).json({ message: "Score updated successfully!" });
+}));
+exports.getPopularLands = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const lands = yield client_1.default.lands.findMany({ where: { score: { gt: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+    res.status(200).json({ message: "Popular lands!", lands });
 }));
