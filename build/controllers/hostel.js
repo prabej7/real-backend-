@@ -155,6 +155,6 @@ exports.updateScore = (0, asyncHandler_middleware_1.default)((req, res) => __awa
     res.status(200).json({ message: "Score updated successfully!" });
 }));
 exports.getPopularHostels = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const hostels = yield client_1.default.hostels.findMany({ where: { score: { gt: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+    const hostels = yield client_1.default.hostels.findMany({ where: { score: { gte: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
     res.status(200).json({ message: "Popular hostels!", hostels });
 }));

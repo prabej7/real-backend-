@@ -220,7 +220,7 @@ export const updateScore = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getPopularRooms = asyncHandler(async (req: Request, res: Response) => {
-    const rooms = await prisma.rooms.findMany({ where: { score: { gt: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+    const rooms = await prisma.rooms.findMany({ where: { score: { gte: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
 
     res.status(200).json({ message: "Popular rooms!", rooms });
 })
