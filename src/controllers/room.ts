@@ -227,6 +227,6 @@ export const getPopularRooms = asyncHandler(async (req: Request, res: Response) 
         take: 10,
         include: { info: true }
     });
-
+    console.log(rooms);
     res.status(200).json({ message: "Popular rooms!", rooms });
 })
