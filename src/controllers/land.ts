@@ -180,7 +180,11 @@ export const updateScore = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getPopularLands = asyncHandler(async (req: Request, res: Response) => {
-    const lands = await prisma.lands.findMany({ where: { score: { gte: 0 }, }, orderBy: { score: 'desc' }, take: 10 });
+    const lands = await prisma.lands.findMany({
+        where:
+            { score: { gte: 0 }, }, orderBy: { score: 'desc' }, take: 10,
+        include: { info: true }
+    });
 
     res.status(200).json({ message: "Popular lands!", lands });
 })
