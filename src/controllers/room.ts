@@ -235,7 +235,8 @@ export const getRecommendation = asyncHandler(async (req: Request, res: Response
     const room = await prisma.rooms.findMany({
         where: { info: { city }, score: { gte: 0 } },
         orderBy: { score: 'desc' },
-        take: 1
+        take: 1,
+        include: { info: true }
     });
     if (room.length == 0) {
         const randomRoom = await prisma.rooms.findFirst({
@@ -244,6 +245,7 @@ export const getRecommendation = asyncHandler(async (req: Request, res: Response
                     gte: 0,
                 },
             },
+            include: { info: true }
         });
 
         res.status(200).json({

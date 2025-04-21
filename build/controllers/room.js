@@ -179,7 +179,8 @@ exports.getRecommendation = (0, asyncHandler_middleware_1.default)((req, res) =>
     const room = yield client_1.default.rooms.findMany({
         where: { info: { city }, score: { gte: 0 } },
         orderBy: { score: 'desc' },
-        take: 1
+        take: 1,
+        include: { info: true }
     });
     if (room.length == 0) {
         const randomRoom = yield client_1.default.rooms.findFirst({
@@ -188,6 +189,7 @@ exports.getRecommendation = (0, asyncHandler_middleware_1.default)((req, res) =>
                     gte: 0,
                 },
             },
+            include: { info: true }
         });
         res.status(200).json({
             message: "No top-rated rooms found in this city. Here's a random recommendation instead.",
