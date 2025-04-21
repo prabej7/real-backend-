@@ -7,7 +7,8 @@ import {
     getRooms,
     filter,
     updateScore,
-    getPopularRooms
+    getPopularRooms,
+    getRecommendation
 } from "../controllers/room";
 import { auth } from "../middleware/auth";
 
@@ -19,6 +20,7 @@ roomRouter.post("/room", auth, addRoom)
     .get("/rooms", auth, getRooms)
     .get("/all-rooms", auth, getAll)
     .get("/popular-rooms", auth, getPopularRooms)
+    .get("recommend-room", auth, getRecommendation)
     .post("/filter-room", filter)
     .post("/room-score", auth, updateScore)
 

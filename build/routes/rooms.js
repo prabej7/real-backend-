@@ -10,6 +10,7 @@ roomRouter.post("/room", auth_1.auth, room_1.addRoom)
     .get("/rooms", auth_1.auth, room_1.getRooms)
     .get("/all-rooms", auth_1.auth, room_1.getAll)
     .get("/popular-rooms", auth_1.auth, room_1.getPopularRooms)
+    .get("recommend-room", auth_1.auth, room_1.getRecommendation)
     .post("/filter-room", room_1.filter)
     .post("/room-score", auth_1.auth, room_1.updateScore);
 exports.default = roomRouter;
