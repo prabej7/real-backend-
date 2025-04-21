@@ -227,6 +227,31 @@ export const getPopularRooms = asyncHandler(async (req: Request, res: Response) 
         take: 10,
         include: { info: true }
     });
-    console.log(rooms);
     res.status(200).json({ message: "Popular rooms!", rooms });
 })
+
+export const getRecommendation = asyncHandler(async (req: Request, res: Response) => {
+    const { city } = req.body as { city: string };
+    const room = await prisma.rooms.findMany({
+        where: { info: { city }, score: { gte: 0 } },
+        orderBy: { score: 'desc' },
+        take: 1
+    });
+    if (room.length == 0) {
+        const randomRoom = await prisma.rooms.findFirst({
+            where: {
+                score: {
+                    gte: 0,
+                },
+            },
+        });
+
+        res.status(200).json({
+            message: "No top-rated rooms found in this city. Here's a random recommendation instead.",
+            room: randomRoom,
+        });
+        return;
+    }
+
+    res.status(200).json({ message: "Success", room: room[0] });
+});

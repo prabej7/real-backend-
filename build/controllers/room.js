@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPopularRooms = exports.updateScore = exports.filter = exports.getAll = exports.getRooms = exports.deleteRoom = exports.getRoom = exports.addRoom = void 0;
+exports.getRecommendation = exports.getPopularRooms = exports.updateScore = exports.filter = exports.getAll = exports.getRooms = exports.deleteRoom = exports.getRoom = exports.addRoom = void 0;
 const client_1 = __importDefault(require("../config/client"));
 const multer_1 = __importDefault(require("../middleware/multer"));
 const upload_1 = require("../service/upload");
@@ -172,6 +172,28 @@ exports.getPopularRooms = (0, asyncHandler_middleware_1.default)((req, res) => _
         take: 10,
         include: { info: true }
     });
-    console.log(rooms);
     res.status(200).json({ message: "Popular rooms!", rooms });
+}));
+exports.getRecommendation = (0, asyncHandler_middleware_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { city } = req.body;
+    const room = yield client_1.default.rooms.findMany({
+        where: { info: { city }, score: { gte: 0 } },
+        orderBy: { score: 'desc' },
+        take: 1
+    });
+    if (room.length == 0) {
+        const randomRoom = yield client_1.default.rooms.findFirst({
+            where: {
+                score: {
+                    gte: 0,
+                },
+            },
+        });
+        res.status(200).json({
+            message: "No top-rated rooms found in this city. Here's a random recommendation instead.",
+            room: randomRoom,
+        });
+        return;
+    }
+    res.status(200).json({ message: "Success", room: room[0] });
 }));
